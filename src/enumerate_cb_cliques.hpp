@@ -30,7 +30,7 @@ public:
 	std::vector<char> ntString;
 	//Constructors
 	CBEnumerator();   
-	CBEnumerator(std::string dotbracket);
+	CBEnumerator(std::string filename);
 	CBEnumerator(std::string dotbracket, int n);
 	CBEnumerator(std::vector<char> nts, std::string dotbracket, int n);
     //Class Methods
@@ -40,7 +40,9 @@ public:
 	void enumerate();
     void printEnumerated();
     void writeEnumerated(std::string outpath);
+    void printReport();
 private:
+    std::string file_used;
     int length;
     void output(int x, int y, int z, int w);
 };
@@ -49,6 +51,31 @@ private:
 // ACTUAL IMPLIMENTATIONS
 //=====================================
 CBEnumerator::CBEnumerator(){}
+
+CBEnumerator::CBEnumerator(std::string filename){
+    this->readDotBrackets(filename);
+    this->enumerate();
+    this->printReport();
+}
+
+void CBEnumerator::printEnumerated(){
+    std::cout << "Printing all " <<enumerated_cliques.size() << " many cliques: " << std::endl;
+    for(std::vector<int*>::iterator it = enumerated_cliques.begin(); it != enumerated_cliques.end(); ++it) {
+        std::cout << "{" << (*it)[0] << "," << (*it)[1] << "," <<
+        (*it)[2] << "," << (*it)[3] << "}" << std::endl;
+    }
+}
+
+void CBEnumerator::printReport(){
+    std::cout << "From the following dot bracket file: " << std::endl;
+    std::cout << "FILE NAME: " << file_used << std::endl;
+    std::cout << "CONTENTS: \n" << IO.readfile(file_used) << std::endl;
+    std::cout << "We got the following interactions: " << std::endl;
+    this->printSecondary();
+    std::cout << "Finally, we exhumed " << enumerated_cliques.size()
+        << " many valid CB cliques" << std::endl;
+}
+
 
 /**
  * enumerate
@@ -130,6 +157,7 @@ void CBEnumerator::printSecondary(){
  *      Result of this method is checkable with "print_secondary"
  */
 void CBEnumerator::readDotBrackets(std::string filename){
+    file_used = filename;
     std::string dbstring = IO.readfile(filename);
     std::string validdb;
     for(char x : dbstring){
